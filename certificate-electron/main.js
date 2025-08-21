@@ -31,47 +31,70 @@ function processWorkbook(sourcePath) {
   const certSeq = {};
   const stanzaSeq = {};
 
+
+  const grades = ['Higher Distinction', 'Distinction', 'Credit', 'Pass', 'Participate'];
+
   Object.values(wb.Sheets).forEach(sheet => {
-    const json = XLSX.utils.sheet_to_json(sheet);
-    json.forEach(row => {
-      const fullName = [row['First Name'], row['Middle Name'], row['Last Name']]
-        .filter(Boolean)
-        .join(' ');
-      const genderWord = row['Gender'] === 'Male' ? 'His' : 'Her';
-      const cls = row['Class'];
-      const teacher = row['Class Teacher Name'];
-      ['Sinhala', 'Buddhism'].forEach(subject => {
-        const grades = ['Higher Distinction', 'Distinction', 'Credit', 'Pass', 'Participate'];
-        const achieved = grades.find(g =>
-          String(row[`${subject}-Grade ${g}`]).match(/^(x|yes|1)$/i)
-        );
-        if (!achieved) return;
+    // Skip first two header rows and read raw arrays to map by column index
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 2 });
+    rows.forEach(cols => {
+      const cls = cols[0];
+      if (!cls) return;
+      const fullName = [cols[1], cols[2], cols[3]].filter(Boolean).join(' ');
+      const genderWord = cols[4] === 'Male' ? 'His' : 'Her';
+      const teacher = cols[19];
+
+      // Sinhala grades occupy columns 6-10
+      const sinAch = grades.find((g, i) =>
+        String(cols[5 + i]).match(/^(x|yes|1)$/i)
+      );
+      if (sinAch) {
         certSeq[cls] ??= { Sinhala: 0, Buddhism: 0 };
-        certSeq[cls][subject]++;
-        const certNo = `G${cls}${subject === 'Buddhism' ? 'B' : 'S'}${String(
-          certSeq[cls][subject]
-        ).padStart(3, '0')}`;
+        certSeq[cls].Sinhala++;
+        const certNo = `G${cls}S${String(certSeq[cls].Sinhala).padStart(3, '0')}`;
         certificateRows.push({
           NAME: fullName,
           Gender: genderWord,
-          Achievement: achieved,
-          Subject: subject,
+          Achievement: sinAch,
+          Subject: 'Sinhala',
           Class: cls,
           Teacher: teacher,
-          CertificateNo: certNo,
+          'Certificate No': certNo,
         });
-        if (String(row['Stanzas']).match(/^(x|yes|1)$/i)) {
-          stanzaSeq[cls] ??= 0;
-          stanzaSeq[cls]++;
-          const stanzaNo = `G${cls}G${String(stanzaSeq[cls]).padStart(3, '0')}`;
-          stanzaRows.push({
-            StudentName: fullName,
-            Class: cls,
-            CertificateNumber: stanzaNo,
-            Teacher: teacher,
-          });
-        }
-      });
+      }
+
+      // Buddhism grades occupy columns 12-16
+      const budAch = grades.find((g, i) =>
+        String(cols[11 + i]).match(/^(x|yes|1)$/i)
+      );
+      if (budAch) {
+        certSeq[cls] ??= { Sinhala: 0, Buddhism: 0 };
+        certSeq[cls].Buddhism++;
+        const certNo = `G${cls}B${String(certSeq[cls].Buddhism).padStart(3, '0')}`;
+        certificateRows.push({
+          NAME: fullName,
+          Gender: genderWord,
+          Achievement: budAch,
+          Subject: 'Buddhism',
+          Class: cls,
+          Teacher: teacher,
+          'Certificate No': certNo,
+        });
+      }
+
+      // Stanza column after attendance
+      if (String(cols[18]).match(/^(x|yes|1)$/i)) {
+        stanzaSeq[cls] ??= 0;
+        stanzaSeq[cls]++;
+        const stanzaNo = `G${cls}G${String(stanzaSeq[cls]).padStart(3, '0')}`;
+        stanzaRows.push({
+          'Student Name': fullName,
+          Class: cls,
+          CertificateNumber: stanzaNo,
+          Teacher: teacher,
+        });
+      }
+
     });
   });
 
