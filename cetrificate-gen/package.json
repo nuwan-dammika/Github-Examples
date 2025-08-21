@@ -1,0 +1,21 @@
+{
+  "name": "cetrificate-gen",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-native start",
+    "windows": "react-native run-windows",
+    "test": "echo \"No tests specified\""
+  },
+  "dependencies": {
+    "react": "18.2.0",
+    "react-native": "0.73.0",
+    "react-native-document-picker": "^9.1.1",
+    "react-native-fs": "^2.20.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "^11.4.1",
+    "react-native-windows": "^0.73.0"
+  }
+}
