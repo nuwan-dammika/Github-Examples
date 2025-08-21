@@ -4,6 +4,7 @@ This simple Electron app converts a raw data workbook into two sheets:
 - **Certificate** for printing certificates
 - **Stanza** for students with stanzas
 
+
 The source workbook is expected to have its first two rows merged as headers.
 Sinhala grade flags occupy columns 6–10 and Buddhism flags occupy columns 12–16.
 
@@ -29,6 +30,8 @@ Sinhala grade flags occupy columns 6–10 and Buddhism flags occupy columns 12�
 | `Class` | Class identifier |
 | `CertificateNumber` | `G` + class + `G` + zero-padded sequence |
 | `Teacher` | Class teacher's name |
+
+=======
 
 ## Usage
 

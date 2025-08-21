@@ -31,6 +31,7 @@ function processWorkbook(sourcePath) {
   const certSeq = {};
   const stanzaSeq = {};
 
+
   const grades = ['Higher Distinction', 'Distinction', 'Credit', 'Pass', 'Participate'];
 
   Object.values(wb.Sheets).forEach(sheet => {
@@ -93,6 +94,7 @@ function processWorkbook(sourcePath) {
           Teacher: teacher,
         });
       }
+
     });
   });
 
